@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/time.h> 
 
 typedef struct vector {
    int x;
@@ -9,6 +10,7 @@ typedef struct vector {
 typedef struct projectile {
    VP pos;
    VP vel;
+   int animFrame;
 } PROJ, *PROJP;
 
 typedef struct smartpool {
@@ -20,6 +22,14 @@ typedef struct smartpool {
 VECTOR struct_zero_vector = {0, 0};
 VP zero_vec = &struct_zero_vector;
 
+struct timeval tv;
+
+void init_random() {
+	//This is just for getting random numbers.                                                              
+	gettimeofday(&tv, NULL);
+	srand(tv.tv_usec);
+}
+
 PROJP init_projectile()
 {
 	PROJP pp = malloc(sizeof(PROJ));
@@ -30,6 +40,7 @@ PROJP init_projectile()
 	pp->vel = malloc(sizeof(VECTOR));
 	pp->vel->x = 0;
 	pp->vel->y = 0;
+	pp->animFrame = rand() % 60;
 	return pp;
 }
 
@@ -124,5 +135,7 @@ void update_pool_positions(SPP sp, int (*cond)(PROJP)) {
 					sp->liveIndex--;
 				}
 			update_proj_position(sp->pool[i]);
+			sp->pool[i]->animFrame++;
+			sp->pool[i]->animFrame %= 60;
 		}
 }

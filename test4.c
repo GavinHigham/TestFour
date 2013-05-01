@@ -1,10 +1,8 @@
-#pragma once
 #include <stdio.h>
 #include <stdlib.h>
 #include <allegro5/allegro.h>
 #include "allegro5/allegro_image.h"
 #include "allegro5/allegro_native_dialog.h"
-#include <sys/time.h>
 #include "projectile.c"
 
 //#define ROOT
@@ -16,7 +14,7 @@
 #define ENEMY_POOL_SIZE 2000
 #define SHOT_COOLDOWN 3
 #define ENEMY_COOLDOWN 0
-#define SHOT_SPREAD 20
+#define SHOT_SPREAD 0
 #define SHOT_OFFSET_X 73
 #define SHOT_OFFSET_Y 29
  
@@ -37,11 +35,7 @@ int main(int argc, char **argv)
 		green = atoi(argv[2]);
 		blue = atoi(argv[3]);
 	}
-
-	//This is just for getting random numbers.
-	struct timeval tv;                                                                 
-	gettimeofday(&tv, NULL);
-	srand(tv.tv_usec);
+	int i;
 
 	ALLEGRO_DISPLAY *display   = NULL;
 	ALLEGRO_BITMAP *ship_image = NULL;
@@ -57,6 +51,8 @@ int main(int argc, char **argv)
 	int shot_offset = 0;
 
 	//Initializing a bunch of modules.
+
+	init_random();
 
 	if(!al_init()) {
 		fprintf(stderr, "failed to initialize allegro!\n");
@@ -90,7 +86,20 @@ int main(int argc, char **argv)
 	ship_image = al_load_bitmap("testship.png");
 	shot_image = al_load_bitmap("ship_shot.png");
 	enemy_shot_image = al_load_bitmap("enemy_shot.png");
-	//enemy_shot_image = al_load_bitmap("test_image.png");
+
+	//Hacky test of animation.
+	ALLEGRO_BITMAP *asteroid[60];
+	for (i = 0; i < 60; i++) {
+		asteroid[i] = NULL;
+		//printf("Loading %2i: ", i);
+		char path[] = "Aster3/aster0000.png\0";
+		path[14] = i/10 + '0';
+		path[15] = i%10 + '0';
+		asteroid[i] = al_load_bitmap(path);
+		//if (asteroid[i]) printf("Successfully loaded frame %2i from %s\n", i, path);
+		if (!(al_get_bitmap_flags(asteroid[i]) & ALLEGRO_VIDEO_BITMAP))
+				printf("Asteroid %2i is not hardware-accelerated!\n", i);
+	}
  
  	//Checking for loading errors.
 	if(!ship_image) {
@@ -123,8 +132,6 @@ int main(int argc, char **argv)
 	//Setup some enemy shots for test purposes.
 	SPP en_pool = init_smartprojpool(ENEMY_POOL_SIZE);
 	int enemy_cooldown = ENEMY_COOLDOWN;
-
-	int i;
 
 	al_draw_bitmap(ship_image, ship->pos->x,ship->pos->y, 0);
 	al_flip_display();
@@ -191,11 +198,11 @@ int main(int argc, char **argv)
 				//Creation and swapping of temporary debris.
 				if (!enemy_cooldown && en_pool->liveIndex < en_pool->poolsize) {
 					VECTOR random_vert_pos = {SCREEN_W, (rand() % SCREEN_H)};
-					VECTOR random_vel = {(rand() % 12), (rand() % 12) - 6};
+					VECTOR random_vel = {(rand() % 3), (rand() % 5) - 2};
 
 					give_pos(en_pool->pool[en_pool->liveIndex], &random_vert_pos);
 					give_vel(en_pool->pool[en_pool->liveIndex], &random_vel);
-					en_pool->pool[en_pool->liveIndex]->vel->x -= 8;
+					en_pool->pool[en_pool->liveIndex]->vel->x -= 4;
 					en_pool->liveIndex++;
 					if (enemy_cooldown == 0) enemy_cooldown = ENEMY_COOLDOWN;
 					//printf("%i\n", en_pool->liveIndex);
@@ -263,17 +270,21 @@ int main(int argc, char **argv)
 		redraw = false;
 		//al_clear_to_color(al_map_rgb(255,255,255));
 		al_clear_to_color(al_map_rgb(red, green, blue));
+		for (i = 0; i < en_pool->liveIndex; i++) {
+			//printf("Attempting to draw asteroid %4i\n", i);
+			al_draw_bitmap(asteroid[en_pool->pool[i]->animFrame], en_pool->pool[i]->pos->x, en_pool->pool[i]->pos->y, 0);
+			//printf("Successfully drew asteroid  %4i\n", i);
+		}
 		for (i = 0; i < sl_pool->liveIndex; i++)
 			al_draw_bitmap(shot_image, sl_pool->pool[i]->pos->x+SHOT_OFFSET_X, sl_pool->pool[i]->pos->y+SHOT_OFFSET_Y, 0);
-		for (i = 0; i < en_pool->liveIndex; i++)
-			al_draw_bitmap(enemy_shot_image, en_pool->pool[i]->pos->x, en_pool->pool[i]->pos->y, 0);
 		al_draw_bitmap(ship_image, ship->pos->x, ship->pos->y, 0);
-
+		
 		al_flip_display();
 		}
 	}
-
+	for (i = 0; i < 60; i++) al_destroy_bitmap(asteroid[i]);
 	al_destroy_bitmap(ship_image);
+	al_destroy_bitmap(enemy_shot_image);
 	al_destroy_timer(timer);
 	al_destroy_display(display);
 	al_destroy_event_queue(event_queue);
