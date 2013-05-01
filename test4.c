@@ -48,8 +48,6 @@ int main(int argc, char **argv)
 	bool redraw = true;
 	bool doexit = false;
 
-	int shot_offset = 0;
-
 	//Initializing a bunch of modules.
 
 	init_random();
@@ -92,7 +90,7 @@ int main(int argc, char **argv)
 	for (i = 0; i < 60; i++) {
 		asteroid[i] = NULL;
 		//printf("Loading %2i: ", i);
-		char path[] = "Aster3/aster0000.png\0";
+		char path[] = "Aster4/aster0000.png\0";
 		path[14] = i/10 + '0';
 		path[15] = i%10 + '0';
 		asteroid[i] = al_load_bitmap(path);
@@ -179,14 +177,9 @@ int main(int argc, char **argv)
 
 			//Creation and swapping of laser projectiles.
 			if(key[KEY_SPACE] && !ship_cooldown && sl_pool->liveIndex < sl_pool->poolsize) {
-				if (shot_offset > SHOT_SPREAD) shot_offset = -shot_offset;
-				shot_offset++;
 				give_pos(sl_pool->pool[sl_pool->liveIndex], ship->pos);
 				give_vel(sl_pool->pool[sl_pool->liveIndex], ship->vel);
 				sl_pool->pool[sl_pool->liveIndex]->vel->x += 15;
-				int signless_offset = shot_offset;
-				if (signless_offset < 0) signless_offset = -signless_offset;
-				sl_pool->pool[sl_pool->liveIndex]->vel->y += signless_offset - SHOT_SPREAD/2;
 				sl_pool->liveIndex++;
 				if (ship_cooldown == 0) ship_cooldown = SHOT_COOLDOWN;
 			}
@@ -194,7 +187,7 @@ int main(int argc, char **argv)
 			//Update the temporary debris positions.
 			update_pool_positions(en_pool, offscreenp);
 			
-			for (i = 0; i < 50; i++) {
+			for (i = 0; i < 10; i++) {
 				//Creation and swapping of temporary debris.
 				if (!enemy_cooldown && en_pool->liveIndex < en_pool->poolsize) {
 					VECTOR random_vert_pos = {SCREEN_W, (rand() % SCREEN_H)};
