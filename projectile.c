@@ -2,14 +2,23 @@
 #include <stdlib.h>
 #include <sys/time.h> 
 
+//A 2D floating-point vector.
 typedef struct vector {
+   float x;
+   float y;
+} VECTOR, *VP;
+
+//A 2D integer vector.
+typedef struct ivector {
    int x;
    int y;
-} VECTOR, *VP;
+} IVECT, *IVP;
 
 typedef struct projectile {
    VP pos;
    VP vel;
+   IVP size;
+   void *next; //Used for collision.
    int animFrame;
 } PROJ, *PROJP;
 
@@ -17,16 +26,20 @@ typedef struct smartpool {
 	PROJP *pool;
 	int poolsize;
 	int liveIndex;
+	int colgroup;
 } SMARTPOOL, *SPP;
 
 VECTOR struct_zero_vector = {0, 0};
 VP zero_vec = &struct_zero_vector;
+int numcolgroups = 0;
 
 struct timeval tv;
 
-void init_random() {
-	//This is just for getting random numbers.                                                              
+//This is just for getting random numbers.     
+void init_random() {                                                         
 	gettimeofday(&tv, NULL);
+	//Seeding with microseconds.
+	//You can re-seed rapidly without getting the same results.
 	srand(tv.tv_usec);
 }
 
@@ -41,6 +54,7 @@ PROJP init_projectile()
 	pp->vel->x = 0;
 	pp->vel->y = 0;
 	pp->animFrame = rand() % 60;
+	pp->next = NULL;
 	return pp;
 }
 
@@ -92,10 +106,27 @@ void swap_array_proj(PROJP pool[], int a, int b)
 	pool[b] = temp;
 }
 
+void kill_proj(SPP sp, int index) {
+	swap_array_proj(sp->pool, index, sp->liveIndex - 1);
+	sp->liveIndex--;
+}
+
 void update_proj_position(PROJP pp)
 {
 	pp->pos->x += pp->vel->x;
 	pp->pos->y += pp->vel->y;
+}
+void update_pool_positions(SPP sp, int (*cond)(PROJP)) {
+	int i;
+	PROJP tmp;
+	for (i = 0; i < sp->liveIndex; i++) {
+		if (cond(sp->pool[i])) kill_proj(sp, i);
+		tmp = sp->pool[i];
+		update_proj_position(tmp);
+
+		tmp->animFrame++;
+		tmp->animFrame %= 60;
+	}
 }
 
 //returns 1 if a projectile is offscreen, 0 otherwise.
@@ -116,26 +147,12 @@ SPP init_smartprojpool(int count)
 	init_projectile_pool(sp->pool, count);
 	sp->liveIndex = 0;
 	sp->poolsize = count;
+	sp->colgroup = numcolgroups;
+	numcolgroups++;
 	return sp;
 }
 
 void free_smartprojpool(SPP sp) {
 	free_projectile_pool(sp->pool, sp->poolsize);
 	free(sp);
-}
-
-//Updates the positions of an entire pool of projectiles.
-//Cond is a function giving a condition for "killing" a particular proj.
-//For instance, it could take a PROJP and tell if it is off the screen area.
-void update_pool_positions(SPP sp, int (*cond)(PROJP)) {
-	int i;
-		for (i = 0; i < sp->liveIndex; i++) {
-				if (cond(sp->pool[i])) {
-					swap_array_proj(sp->pool, i, sp->liveIndex - 1);
-					sp->liveIndex--;
-				}
-			update_proj_position(sp->pool[i]);
-			sp->pool[i]->animFrame++;
-			sp->pool[i]->animFrame %= 60;
-		}
 }
