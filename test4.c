@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <allegro5/allegro.h>
 #include "allegro5/allegro_image.h"
-#include "allegro5/allegro_native_dialog.h"
+//#include "allegro5/allegro_native_dialog.h"
 #include "projectile.c"
 
 //#define ROOT
@@ -70,7 +70,7 @@ int main()
 	}
 
 	if(!al_init_image_addon()) {
-		al_show_native_message_box(display, "Error", "Error", "Failed to initialize al_init_image_addon!", NULL, ALLEGRO_MESSAGEBOX_ERROR);
+		//al_show_native_message_box(display, "Error", "Error", "Failed to initialize al_init_image_addon!", NULL, ALLEGRO_MESSAGEBOX_ERROR);
 		return -1;
 	}
  
