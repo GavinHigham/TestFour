@@ -1,48 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <sys/time.h> 
-
-//A 2D floating-point vector.
-typedef struct vector {
-   float x;
-   float y;
-} VECTOR, *VP;
-
-//A 2D integer vector.
-typedef struct ivector {
-   int x;
-   int y;
-} IVECT, *IVP;
-
-typedef struct projectile {
-   VP pos;
-   VP vel;
-   IVP size;
-   void *next; //Used for collision.
-   int animFrame;
-} PROJ, *PROJP;
-
-typedef struct smartpool {
-	PROJP *pool;
-	int poolsize;
-	int liveIndex;
-	int colgroup;
-} SMARTPOOL, *SPP;
-
-VECTOR struct_zero_vector = {0, 0};
-VP zero_vec = &struct_zero_vector;
-int numcolgroups = 0;
-
-struct timeval tv;
-
-//This is just for getting random numbers.     
-void init_random() {                                                         
-	gettimeofday(&tv, NULL);
-	//Seeding with microseconds.
-	//You can re-seed rapidly without getting the same results.
-	srand(tv.tv_usec);
-}
-
 PROJP init_projectile()
 {
 	PROJP pp = malloc(sizeof(PROJ));
@@ -138,6 +93,11 @@ int proj_offscreen(PROJP pp, int screen_w, int screen_h, int margin)
 		return 1;
 	}
 	else return 0;
+}
+//This one takes only one argument so it can be passed as a function pointer with filled-in values.
+int offscreen(PROJP pp)
+{
+	return proj_offscreen(pp, SCREEN_W, SCREEN_H, MARGIN);
 }
 
 SPP init_smartprojpool(int count)
