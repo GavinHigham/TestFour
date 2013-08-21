@@ -88,11 +88,8 @@ void update_pool_positions(SPP sp, int (*cond)(PROJP)) {
 //Margin is how many pixels beyond the screen the proj should be to return 1.
 int proj_offscreen(PROJP pp, int screen_w, int screen_h, int margin)
 {
-	if ((pp->pos->x > (screen_w + margin)) || (pp->pos->x < (0 - margin)) ||
-		(pp->pos->y > (screen_h + margin)) || (pp->pos->y < (0 - margin)) ) {
-		return 1;
-	}
-	else return 0;
+	return ((pp->pos->x > (screen_w + margin)) || (pp->pos->x < (0 - margin)) ||
+		(pp->pos->y > (screen_h + margin)) || (pp->pos->y < (0 - margin)) );
 }
 //This one takes only one argument so it can be passed as a function pointer with filled-in values.
 int offscreen(PROJP pp)

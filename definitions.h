@@ -13,26 +13,31 @@
 #define BACKDROP_H 800
 #define BACKDROP_W 1280
 #define STARNUMBER 200
+#define COLLISIONDIVISION 9
 
 //A 2D floating-point vector.
 typedef struct vector {
-   float x;
-   float y;
+	float x;
+	float y;
 } VECTOR, *VP;
 
 //A 2D integer vector.
 typedef struct ivector {
-   int x;
-   int y;
+	int x;
+	int y;
 } IVECT, *IVP;
 
 typedef struct projectile {
-   VP pos;
-   VP vel;
-   VP size;
-   void *next; //Used for collision.
-   int animFrame;
+	VP pos;
+	VP vel;
+	VP size;
+	//void *next; //Used for collision.
+	int kind;
+	int animFrame;
 } PROJ, *PROJP;
+
+//"Kind" will be an integer, but I enumerate its possible values here.
+enum {SHIP, BOLT, ASTEROID};
 
 typedef struct smartpool {
 	PROJP *pool;
@@ -77,5 +82,7 @@ int enemy_cooldown = ENEMY_COOLDOWN;
 SPP sl_pool;
 SPP en_pool;
 
-enum MYKEYS {KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT, KEY_SPACE};
+enum {KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT, KEY_SPACE};
 bool key[5] = { false, false, false, false };
+
+PROJP collision_array[8 * 6] = {0};
