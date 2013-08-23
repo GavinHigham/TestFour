@@ -61,8 +61,15 @@ void swap_array_proj(PROJP pool[], int a, int b)
 	pool[b] = temp;
 }
 
+//Kills a live projectile and returns it to the pool.
 void kill_proj(SPP sp, int index) {
 	swap_array_proj(sp->pool, index, sp->liveIndex - 1);
+	sp->liveIndex--;
+}
+
+//Same as above, but takes a specially-prepared PROJP.
+void special_kill_proj(SPP sp, PROJP pp) {
+	swap_array_proj(sp->pool, pp->index, sp->liveIndex - 1);
 	sp->liveIndex--;
 }
 
@@ -104,8 +111,6 @@ SPP init_smartprojpool(int count)
 	init_projectile_pool(sp->pool, count);
 	sp->liveIndex = 0;
 	sp->poolsize = count;
-	sp->colgroup = numcolgroups;
-	numcolgroups++;
 	return sp;
 }
 

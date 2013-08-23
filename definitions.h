@@ -32,18 +32,28 @@ typedef struct projectile {
 	VP vel;
 	VP size;
 	//void *next; //Used for collision.
-	int kind;
 	int animFrame;
+	//Used for temporary information.
+	//DO NOT EXPECT IT TO BE ACCURATE UNLESS UPDATED AND USED IMMEDIATELY.
+	int index;
+	void *next; //Really a PROJP pointer.
 } PROJ, *PROJP;
 
+typedef struct collbox {
+	PROJP ship;
+	PROJP bolts;
+	PROJP asteroids;
+	PROJP enemies;
+} COLLBOX, *COLLBOXP;
+
 //"Kind" will be an integer, but I enumerate its possible values here.
-enum {SHIP, BOLT, ASTEROID};
+enum {SHIP, BOLT, ASTEROID, ENEMY};
 
 typedef struct smartpool {
 	PROJP *pool;
 	int poolsize;
 	int liveIndex;
-	int colgroup;
+	int kind;
 } SMARTPOOL, *SPP;
 
 VECTOR struct_zero_vector = {0, 0};
@@ -85,4 +95,4 @@ SPP en_pool;
 enum {KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT, KEY_SPACE};
 bool key[5] = { false, false, false, false };
 
-PROJP collision_array[8 * 6] = {0};
+COLLBOX collision_array[8][6] = {0, 0, 0, 0};
