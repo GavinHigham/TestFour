@@ -8,6 +8,7 @@
 //My stuff.
 #include "definitions.h"
 #include "projectile.c"
+#include "collision.c"
 #include "init.c"
 #include "tex_load.c"
 #include "logic_tick.c"
@@ -103,19 +104,25 @@ int main()
 			//al_clear_to_color(al_map_rgb(255,255,255));
 			al_draw_bitmap(backdrop, backdropx, backdropy, 0);
 
-			for (i = 0; i < en_pool->liveIndex; i++) {
+			for (i = 0; i < ast_pool->liveIndex; i++) {
 				//printf("Attempting to draw asteroid %4i\n", i);
-				al_draw_bitmap(asteroid[en_pool->pool[i]->animFrame], en_pool->pool[i]->pos->x + backdropx, en_pool->pool[i]->pos->y + backdropy, 0);
+				al_draw_bitmap(asteroid[ast_pool->pool[i]->animFrame], ast_pool->pool[i]->pos->x, ast_pool->pool[i]->pos->y, 0);
 				//printf("Successfully drew asteroid  %4i\n", i);
 			}
 
 			for (i = 0; i < sl_pool->liveIndex; i++) {
-				al_draw_bitmap(bolt[boltFrame=(++boltFrame%12)], sl_pool->pool[i]->pos->x+SHOT_OFFSET_X, sl_pool->pool[i]->pos->y+SHOT_OFFSET_Y, 0);
+				al_draw_bitmap(bolt[boltFrame=(++boltFrame%12)], sl_pool->pool[i]->pos->x, sl_pool->pool[i]->pos->y, 0);
 			}
 
 			//Draw the ship.
 			al_draw_bitmap(shipFrames[(int)shipFrame+shipFramesetSwap], ship->pos->x, ship->pos->y, 0);
 			
+			/*
+			for (i = 0; i < blast_pool->liveIndex; i++) {
+				al_draw_bitmap(blastFrames[36 - blast_pool->pool[i]->health], blast_pool->pool[i]->pos->x, blast_pool->pool[i]->pos->y, 0);
+			}
+			*/
+
 			al_flip_display();
 			fps++;
 		}
@@ -128,8 +135,11 @@ int main()
 	al_destroy_timer(timer);
 	al_destroy_display(display);
 	al_destroy_event_queue(event_queue);
+	//free_projectile(ship);
 	free_smartprojpool(sl_pool);
-	free_smartprojpool(en_pool);
+	free_smartprojpool(ast_pool);
+	//free_smartprojpool(blast_pool);
+	free_smartnodepool(node_pool);
 
 	return 0;
 }

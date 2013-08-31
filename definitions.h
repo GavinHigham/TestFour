@@ -15,6 +15,8 @@
 #define STARNUMBER 200
 #define COLLISIONDIVISION 9
 
+typedef long long unsigned int llui;
+
 //A 2D floating-point vector.
 typedef struct vector {
 	float x;
@@ -36,25 +38,39 @@ typedef struct projectile {
 	//Used for temporary information.
 	//DO NOT EXPECT IT TO BE ACCURATE UNLESS UPDATED AND USED IMMEDIATELY.
 	int index;
-	void *next; //Really a PROJP pointer.
+	struct projectile *next;
+	int kind;
+	int health;
+	int dead;
 } PROJ, *PROJP;
 
-typedef struct collbox {
-	PROJP ship;
-	PROJP bolts;
-	PROJP asteroids;
-	PROJP enemies;
-} COLLBOX, *COLLBOXP;
-
 //"Kind" will be an integer, but I enumerate its possible values here.
-enum {SHIP, BOLT, ASTEROID, ENEMY};
+enum {SHIP, BOLT, ASTEROID, ENEMY, BLAST};
 
 typedef struct smartpool {
 	PROJP *pool;
 	int poolsize;
 	int liveIndex;
-	int kind;
 } SMARTPOOL, *SPP;
+
+typedef struct node {
+	PROJP data;
+	struct node *next;
+	int index; //Allows for easier killing.
+} NODE, *NODEP;
+
+typedef struct nodepool {
+	NODEP *pool;
+	int poolsize;
+	int liveIndex;
+} NODEPOOL, *NPP;
+
+typedef struct collbox {
+	NODEP ship;
+	NODEP bolts;
+	NODEP asteroids;
+	NODEP enemies;
+} COLLBOX, *COLLBOXP;
 
 VECTOR struct_zero_vector = {0, 0};
 VP zero_vec = &struct_zero_vector;
@@ -80,6 +96,7 @@ bool doexit = false;
 short boltFrame = 0;
 ALLEGRO_BITMAP *bolt[12];
 ALLEGRO_BITMAP *asteroid[60];
+//ALLEGRO_BITMAP *blastFrames[36];
 
 int shipFrame = 29;
 int shipFramesetSwap = 60;
@@ -90,9 +107,11 @@ int ship_cooldown = SHOT_COOLDOWN;
 int enemy_cooldown = ENEMY_COOLDOWN;
 
 SPP sl_pool;
-SPP en_pool;
+SPP ast_pool;
+//SPP blast_pool;
+NPP node_pool;
 
 enum {KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT, KEY_SPACE};
 bool key[5] = { false, false, false, false };
 
-COLLBOX collision_array[8][6] = {0, 0, 0, 0};
+COLLBOX collision_array[SCREEN_W / 100][SCREEN_H / 100];

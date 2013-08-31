@@ -6,7 +6,7 @@ void logic_tick()
 	shipFramesetSwap^=60;
 
 	if (logicTick >= 60) {
-		printf("FPS: %2i, Pool Size: %4i\n", fps, en_pool->liveIndex);
+		printf("FPS: %2i, Pool Size: %4i, Ship health: %3i\n", fps, ast_pool->liveIndex, ship->health);
 		fps = logicTick = 0;
 	}
 	logicTick++;
@@ -43,36 +43,58 @@ void logic_tick()
 	update_proj_position(ship);
 
 	//Update the ship's laser pool projectile positions.
-	int (*offscreenp)(PROJP pp);
-	offscreenp = &offscreen;
-	update_pool_positions(sl_pool, offscreenp);
+	update_pool_positions(sl_pool, &offscreen);
 
 	//Creation and swapping of laser projectiles.
 	if (key[KEY_SPACE] && !ship_cooldown && sl_pool->liveIndex < sl_pool->poolsize) {
-		PROJP new = sl_pool->pool[sl_pool->liveIndex];
-		give_pos(new, ship->pos);
+		PROJP new = new_proj(sl_pool);
+		new->pos->x = ship->pos->x + SHOT_OFFSET_X;
+		new->pos->y = ship->pos->y + SHOT_OFFSET_Y;
 		//give_vel(sl_pool->pool[sl_pool->liveIndex], ship->vel);
 		give_vel(new, zero_vec);
 		new->vel->x += 15;
-		sl_pool->liveIndex++;
 		if (ship_cooldown == 0) ship_cooldown = SHOT_COOLDOWN;
 	}
 	
 	//Update the temporary debris positions.
-	update_pool_positions(en_pool, offscreenp);
+	update_pool_positions(ast_pool, &offscreen);
 	
 	for (i = 0; i < 10; i++) {
 		//Creation and swapping of temporary debris.
-		if (!enemy_cooldown && en_pool->liveIndex < en_pool->poolsize) {
+		if (!enemy_cooldown && ast_pool->liveIndex < ast_pool->poolsize) {
 			VECTOR random_vert_pos = {SCREEN_W + MARGIN, (rand() % SCREEN_H)};
 			VECTOR random_vel = {(rand() % 3) - 4, (rand() % 5) - 2};
-			PROJP new = en_pool->pool[en_pool->liveIndex];
+			PROJP new = new_proj(ast_pool);
 
 			give_pos(new, &random_vert_pos);
 			give_vel(new, &random_vel);
-			en_pool->liveIndex++;
 			if (enemy_cooldown == 0) enemy_cooldown = ENEMY_COOLDOWN;
-			//printf("%i\n", en_pool->liveIndex);
+			//printf("%i\n", ast_pool->liveIndex);
 		}
 	}
+
+	/*
+	//Setup my function pointer.
+	printf("It probably breaks after this.\n");
+	printf("%x\n", &no_health);
+	update_pool_positions(blast_pool, &no_health);
+	//printf("Hmm, it didn't break.\n");
+	
+	for (i = 0; i < blast_pool->liveIndex; i++) {
+		blast_pool->pool[i]->health--;
+	}
+	*/
+	
+	clear_collboxes();
+	//printf("It broke after clearing.\n");
+	//printf("Checking in the ship:\n");
+	check_in_proj(ship);
+	//printf("\n");
+	//printf("It broke after ship check-in\n");
+	check_in_smartpool(sl_pool);
+	check_in_smartpool(ast_pool);
+	//printf("Smartpool check-in was successful.\n");
+	do_collision();
+	//printf("Collision was successful.\n");
+
 }

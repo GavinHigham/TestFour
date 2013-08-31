@@ -8,8 +8,14 @@ PROJP init_projectile()
 	pp->vel = malloc(sizeof(VECTOR));
 	pp->vel->x = 0;
 	pp->vel->y = 0;
+	pp->size = malloc(sizeof(VECTOR));
+	pp->size->x = 100;
+	pp->size->y = 100;
 	pp->animFrame = rand() % 60;
 	pp->next = NULL;
+	pp->health = 100;
+	pp->dead = 0;
+	//Temporary sizes for testing.
 	return pp;
 }
 
@@ -73,22 +79,34 @@ void special_kill_proj(SPP sp, PROJP pp) {
 	sp->liveIndex--;
 }
 
+//Revives a projectile from the smartpool and gives it to you.
+PROJP new_proj(SPP sp)
+{
+	PROJP new = sp->pool[sp->liveIndex];
+	new->dead = 0;
+	sp->liveIndex++;
+	return new;
+}
+
 void update_proj_position(PROJP pp)
 {
+	printf(".");
 	pp->pos->x += pp->vel->x;
 	pp->pos->y += pp->vel->y;
 }
 void update_pool_positions(SPP sp, int (*cond)(PROJP)) {
 	int i;
 	PROJP tmp;
+	printf("Updating SPP:");
 	for (i = 0; i < sp->liveIndex; i++) {
-		if (cond(sp->pool[i])) kill_proj(sp, i);
+		if (sp->pool[i]->dead || cond(sp->pool[i])) kill_proj(sp, i);
 		tmp = sp->pool[i];
 		update_proj_position(tmp);
 
 		tmp->animFrame++;
 		tmp->animFrame %= 60;
 	}
+	printf("\n");
 }
 
 //returns 1 if a projectile is offscreen, 0 otherwise.
@@ -102,6 +120,11 @@ int proj_offscreen(PROJP pp, int screen_w, int screen_h, int margin)
 int offscreen(PROJP pp)
 {
 	return proj_offscreen(pp, SCREEN_W, SCREEN_H, MARGIN);
+}
+//Returns 1 if a PROJ has no health.
+int no_health(PROJP pp)
+{
+	return (int)(pp->health <= 0);
 }
 
 SPP init_smartprojpool(int count)
