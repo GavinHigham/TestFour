@@ -66,14 +66,12 @@ int init_stuff()
 		ast_pool->pool[i]->size->y = 25;
 	}
 
-	/*
 	blast_pool = init_smartprojpool(PROJ_POOL_SIZE);
 	for (i = 0; i < blast_pool->poolsize; i++) {
 		blast_pool->pool[i]->kind = BLAST;
 		blast_pool->pool[i]->health = 36;
 		blast_pool->pool[i]->animFrame = 0;
 	}
-	*/
 
 	//The +1 is for the ship projectile, the *4 is for the 4 corners of each projectile.
 	node_pool = init_smartnodepool((ENEMY_POOL_SIZE + PROJ_POOL_SIZE + 1) * 4);

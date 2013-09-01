@@ -90,14 +90,14 @@ PROJP new_proj(SPP sp)
 
 void update_proj_position(PROJP pp)
 {
-	printf(".");
+	//printf(".");
 	pp->pos->x += pp->vel->x;
 	pp->pos->y += pp->vel->y;
 }
 void update_pool_positions(SPP sp, int (*cond)(PROJP)) {
 	int i;
 	PROJP tmp;
-	printf("Updating SPP:");
+	//printf("Updating SPP:");
 	for (i = 0; i < sp->liveIndex; i++) {
 		if (sp->pool[i]->dead || cond(sp->pool[i])) kill_proj(sp, i);
 		tmp = sp->pool[i];
@@ -106,7 +106,7 @@ void update_pool_positions(SPP sp, int (*cond)(PROJP)) {
 		tmp->animFrame++;
 		tmp->animFrame %= 60;
 	}
-	printf("\n");
+	//printf("\n");
 }
 
 //returns 1 if a projectile is offscreen, 0 otherwise.
@@ -124,7 +124,7 @@ int offscreen(PROJP pp)
 //Returns 1 if a PROJ has no health.
 int no_health(PROJP pp)
 {
-	return (int)(pp->health <= 0);
+	return (pp->health <= 0);
 }
 
 SPP init_smartprojpool(int count)

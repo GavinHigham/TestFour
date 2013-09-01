@@ -63,10 +63,12 @@ void ship_aster_coll(PROJP ship, PROJP asteroid)
 	//printf("%llx & %llx\n", (llui)ship, (llui)asteroid);
 	asteroid->dead = 1;
 	ship->health--;
-	//PROJP blastEffect = new_proj(blast_pool);
-	//blastEffect->health = 36;
-	//give_pos(blastEffect, asteroid->pos);
-	//give_vel(blastEffect, asteroid->vel);
+	PROJP blastEffect = new_proj(blast_pool);
+	blastEffect->health = 34;
+	blastEffect->pos->x = asteroid->pos->x - 13.5;
+	blastEffect->pos->y = asteroid->pos->y - 13.5;
+	blastEffect->vel->x = asteroid->vel->x * 0.6;
+	blastEffect->vel->y = asteroid->vel->y * 0.6;
 }
 void bolt_aster_coll(PROJP bolt, PROJP asteroid)
 {
@@ -74,10 +76,12 @@ void bolt_aster_coll(PROJP bolt, PROJP asteroid)
 	//printf("%llx & %llx\n", (llui)bolt, (llui)asteroid);
 	bolt->dead = 1;
 	asteroid->dead = 1;
-	//PROJP blastEffect = new_proj(blast_pool);
-	//blastEffect->health = 36;
-	//give_pos(blastEffect, asteroid->pos);
-	//give_vel(blastEffect, asteroid->vel);
+	PROJP blastEffect = new_proj(blast_pool);
+	blastEffect->health = 34;
+	blastEffect->pos->x = asteroid->pos->x - 13.5;
+	blastEffect->pos->y = asteroid->pos->y - 13.5;
+	blastEffect->vel->x = asteroid->vel->x * 0.6;
+	blastEffect->vel->y = asteroid->vel->y * 0.6;
 }
 void bolt_enemy_coll(PROJP bolt, PROJP enemy)
 {
@@ -89,12 +93,12 @@ void handleCollision(PROJP proj1, PROJP proj2)
 {
 	//printf("Handling collision.\n");
 	//These are temporary.
-	if (proj1->kind == SHIP) //There may be more thorough checks in the future.
+	if (proj1->kind == SHIP && proj2->kind == ASTEROID) //There may be more thorough checks in the future.
 		ship_aster_coll(proj1, proj2);
-	if (proj1->kind == ENEMY) //Same.
-		bolt_enemy_coll(proj1, proj2);
-	if (proj1->kind == ASTEROID) //Ditto.
-		bolt_aster_coll(proj1, proj2);
+	if (proj1->kind == BOLT) {
+		if (proj2->kind == ENEMY) bolt_enemy_coll(proj1, proj2);
+		if (proj2->kind == ASTEROID) bolt_aster_coll(proj1, proj2);
+	}
 }
 
 /*
@@ -190,7 +194,7 @@ void point_checkin(PROJP pp, int pointX, int pointY)
 
 void check_in_proj(PROJP pp)
 {
-	printf(".");
+	//printf(".");
 	double cornerX = pp->pos->x;
 	double cornerY = pp->pos->y;
 	point_checkin(pp, (int)cornerX, (int)cornerY); //Check in the top-left corner.
@@ -205,13 +209,13 @@ void check_in_proj(PROJP pp)
 //Adds the projectiles from a smartpool to the collision array.
 void check_in_smartpool(SPP sp)
 {
-	printf("Checking in a smartpool:\n");
+	//printf("Checking in a smartpool:\n");
 	for (i = 0 ; i < sp->liveIndex; i++) {
 		//Update the index so it can be killed via reference.
 		sp->pool[i]->index = i;
 		check_in_proj(sp->pool[i]);
 	}
-	printf("\n");
+	//printf("\n");
 }
 
 //Returns 1 if the two projectiles are box colliding.
@@ -250,8 +254,8 @@ void find_collbox_collisions(COLLBOXP cbp)
 	while (temp1 != NULL) {
 		temp2 = cbp->bolts;
 		while (temp2 != NULL) {
-			if (box_colliding(temp1->data, temp2->data))
-				handleCollision(temp1->data, temp2->data);
+			if (box_colliding(temp2->data, temp1->data))
+				handleCollision(temp2->data, temp1->data);
 			temp2 = temp2->next;
 		}
 		kill_node(node_pool, temp1->index);
@@ -267,8 +271,8 @@ void find_collbox_collisions(COLLBOXP cbp)
 		while (temp2 != NULL) {
 			//printf("Box collision for asteroids.\n");
 			//printf("temp2 = %llx\n", (llui)temp2);
-			if (box_colliding(temp1->data, temp2->data))
-				handleCollision(temp1->data, temp2->data);
+			if (box_colliding(temp2->data, temp1->data))
+				handleCollision(temp2->data, temp1->data);
 			temp2 = temp2->next;
 		}
 		kill_node(node_pool, temp1->index);

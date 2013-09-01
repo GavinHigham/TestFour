@@ -73,17 +73,10 @@ void logic_tick()
 		}
 	}
 
-	/*
-	//Setup my function pointer.
-	printf("It probably breaks after this.\n");
-	printf("%x\n", &no_health);
 	update_pool_positions(blast_pool, &no_health);
-	//printf("Hmm, it didn't break.\n");
-	
 	for (i = 0; i < blast_pool->liveIndex; i++) {
-		blast_pool->pool[i]->health--;
+		if (blast_pool->pool[i]->health > 0) blast_pool->pool[i]->health--;
 	}
-	*/
 	
 	clear_collboxes();
 	//printf("It broke after clearing.\n");

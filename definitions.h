@@ -80,7 +80,7 @@ int i;
 short fps = 0;
 short logicTick = 0;
 //Standard velocity.
-float stdv = 3.1;
+float stdv = 4.5;
 //Value to scale x and y vel by if both keys are pressed.
 float diagscale = 0.71;
 int backdropx = 0;
@@ -94,9 +94,9 @@ bool redraw = true;
 bool doexit = false;
 
 short boltFrame = 0;
-ALLEGRO_BITMAP *bolt[12];
-ALLEGRO_BITMAP *asteroid[60];
-//ALLEGRO_BITMAP *blastFrames[36];
+ALLEGRO_BITMAP *boltFrames[12];
+ALLEGRO_BITMAP *asteroidFrames[60];
+ALLEGRO_BITMAP *blastFrames[36];
 
 int shipFrame = 29;
 int shipFramesetSwap = 60;
@@ -108,7 +108,7 @@ int enemy_cooldown = ENEMY_COOLDOWN;
 
 SPP sl_pool;
 SPP ast_pool;
-//SPP blast_pool;
+SPP blast_pool;
 NPP node_pool;
 
 enum {KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT, KEY_SPACE};
