@@ -94,12 +94,12 @@ bool redraw = true;
 bool doexit = false;
 
 short boltFrame = 0;
+int shipFrame = 29;
+int shipFramesetSwap = 60;
 ALLEGRO_BITMAP *boltFrames[12];
 ALLEGRO_BITMAP *asteroidFrames[60];
 ALLEGRO_BITMAP *blastFrames[36];
-
-int shipFrame = 29;
-int shipFramesetSwap = 60;
+ALLEGRO_BITMAP *backdrop = NULL;
 ALLEGRO_BITMAP *shipFrames[120];
 
 PROJP ship;

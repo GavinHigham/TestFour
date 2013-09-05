@@ -1,5 +1,3 @@
-ALLEGRO_BITMAP *backdrop = NULL;
-
 int load_textures()
 {
 
