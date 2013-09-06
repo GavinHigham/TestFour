@@ -7,7 +7,7 @@
 #include "allegro5/allegro_image.h"
 //My stuff.
 #include "definitions.h"
-#include "projectile.c"
+#include "proj.c"
 #include "collision.c"
 #include "init.c"
 #include "tex_load.c"
@@ -22,8 +22,8 @@ int main()
 	if (load_textures()) return -1;
 
 	//Setup the ship projectile.
-	ship->pos->x = SCREEN_W / 4;
-	ship->pos->y = SCREEN_H / 2;
+	ship->posX = SCREEN_W / 4;
+	ship->posY = SCREEN_H / 2;
 
 	event_queue = al_create_event_queue();
 	if(!event_queue) {
@@ -106,21 +106,21 @@ int main()
 
 			for (i = 0; i < ast_pool->liveIndex; i++) {
 				//printf("Attempting to draw asteroid %4i\n", i);
-				al_draw_bitmap(asteroidFrames[ast_pool->pool[i]->animFrame], ast_pool->pool[i]->pos->x, ast_pool->pool[i]->pos->y, 0);
+				al_draw_bitmap(asteroidFrames[ast_pool->pool[i]->animFrame], ast_pool->pool[i]->posX, ast_pool->pool[i]->posY, 0);
 				//printf("Successfully drew asteroid  %4i\n", i);
 			}
 
 			//Draw the bolts.
 			for (i = 0; i < sl_pool->liveIndex; i++) {
-				al_draw_bitmap(boltFrames[boltFrame=(++boltFrame%12)], sl_pool->pool[i]->pos->x, sl_pool->pool[i]->pos->y, 0);
+				al_draw_bitmap(boltFrames[boltFrame=(++boltFrame%12)], sl_pool->pool[i]->posX, sl_pool->pool[i]->posY, 0);
 			}
 
 			//Draw the ship.
-			al_draw_bitmap(shipFrames[(int)shipFrame+shipFramesetSwap], ship->pos->x, ship->pos->y, 0);
+			al_draw_bitmap(shipFrames[(int)shipFrame+shipFramesetSwap], ship->posX, ship->posY, 0);
 
 			//Draw the blasts.
 			for (i = 0; i < blast_pool->liveIndex; i++) {
-				al_draw_bitmap(blastFrames[34 - blast_pool->pool[i]->health], blast_pool->pool[i]->pos->x, blast_pool->pool[i]->pos->y, 0);
+				al_draw_bitmap(blastFrames[34 - blast_pool->pool[i]->health], blast_pool->pool[i]->posX, blast_pool->pool[i]->posY, 0);
 			}
 
 			al_flip_display();
@@ -129,8 +129,8 @@ int main()
 	}
 
 	//Free all the things!
-	for (i = 0; i < 60; i++)  al_destroy_bitmap(asteroidFrames[i]);
-	for (i = 0; i < 12; i++)  al_destroy_bitmap(boltFrames[i]);
+	for (i = 0; i < 60; i++) al_destroy_bitmap(asteroidFrames[i]);
+	for (i = 0; i < 12; i++) al_destroy_bitmap(boltFrames[i]);
 	for (i = 0; i < 120; i++) al_destroy_bitmap(shipFrames[i]);
 	for (i = 0; i < 35; i++) al_destroy_bitmap(blastFrames[i]);
 	al_destroy_bitmap(backdrop);
@@ -138,10 +138,10 @@ int main()
 	al_destroy_display(display);
 	al_destroy_event_queue(event_queue);
 	//free_projectile(ship);
-	free_smartprojpool(sl_pool);
-	free_smartprojpool(ast_pool);
-	free_smartprojpool(blast_pool);
-	free_smartnodepool(node_pool);
+	free_smartItemPool(sl_pool);
+	free_smartItemPool(ast_pool);
+	free_smartItemPool(blast_pool);
+	free_smartItemPool(node_pool);
 
 	return 0;
 }

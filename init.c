@@ -46,24 +46,24 @@ int init_stuff()
 		return -1;
 	}
 
-	ship = init_projectile();
+	ship = init_proj();
 	ship->kind = SHIP;
-	ship->size->x = 100;
-	ship->size->y = 50;
+	ship->sizeX = 100;
+	ship->sizeY = 50;
 	//Setup the ship's laser pool.
 	sl_pool = init_smartprojpool(PROJ_POOL_SIZE);
 	for (i = 0; i < sl_pool->poolsize; i++) {
 		sl_pool->pool[i]->kind = BOLT;
-		sl_pool->pool[i]->size->x = 50;
-		sl_pool->pool[i]->size->y = 20;
+		sl_pool->pool[i]->sizeX = 50;
+		sl_pool->pool[i]->sizeY = 20;
 	}
 
 	//Setup some enemy shots for test purposes.
 	ast_pool = init_smartprojpool(ENEMY_POOL_SIZE);
 	for (i = 0; i < ast_pool->poolsize; i++) {
 		ast_pool->pool[i]->kind = ASTEROID;
-		ast_pool->pool[i]->size->x = 25;
-		ast_pool->pool[i]->size->y = 25;
+		ast_pool->pool[i]->sizeX = 25;
+		ast_pool->pool[i]->sizeY = 25;
 	}
 
 	blast_pool = init_smartprojpool(PROJ_POOL_SIZE);
@@ -72,6 +72,7 @@ int init_stuff()
 		blast_pool->pool[i]->health = 36;
 		blast_pool->pool[i]->animFrame = 0;
 	}
+
 
 	//The +1 is for the ship projectile, the *4 is for the 4 corners of each projectile.
 	node_pool = init_smartnodepool((ENEMY_POOL_SIZE + PROJ_POOL_SIZE + 1) * 4);

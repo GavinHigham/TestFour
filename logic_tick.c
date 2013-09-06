@@ -11,30 +11,31 @@ void logic_tick()
 	}
 	logicTick++;
 
-	give_vel(ship, zero_vec);
+	ship->velX = 0;
+	ship->velY = 0;
 	//Checking ship movement keys.
 	if(key[KEY_UP]) {
-		ship->vel->y -= stdv;
+		ship->velY -= stdv;
 		if (shipFrame < 58) shipFrame+= 3;
 		if (backdropy < 0) backdropy++;
 	}
 	if(key[KEY_DOWN]) {
-		ship->vel->y += stdv;
+		ship->velY += stdv;
 		if (shipFrame > 1) shipFrame-= 3;
 		if (backdropy + BACKDROP_H > SCREEN_H) backdropy--;
 	}
 	if(key[KEY_LEFT]) {
-		ship->vel->x -= stdv;
+		ship->velX -= stdv;
 		if (backdropx < 0) backdropx++;
 	}
 	if(key[KEY_RIGHT]) {
-		ship->vel->x += stdv;
+		ship->velX += stdv;
 		if (backdropx + BACKDROP_W > SCREEN_W) backdropx--;
 	}
 
-	if (ship->vel->x && ship->vel->y) {
-		ship->vel->x *= diagscale;
-		ship->vel->y *= diagscale;
+	if (ship->velX && ship->velY) {
+		ship->velX *= diagscale;
+		ship->velY *= diagscale;
 	}
 
 	if (shipFrame > 29) shipFrame-=2;
@@ -43,31 +44,30 @@ void logic_tick()
 	update_proj_position(ship);
 
 	//Update the ship's laser pool projectile positions.
-	update_pool_positions(sl_pool, &offscreen);
+	update_pool(sl_pool, &proj_update);
 
 	//Creation and swapping of laser projectiles.
 	if (key[KEY_SPACE] && !ship_cooldown && sl_pool->liveIndex < sl_pool->poolsize) {
-		PROJP new = new_proj(sl_pool);
-		new->pos->x = ship->pos->x + SHOT_OFFSET_X;
-		new->pos->y = ship->pos->y + SHOT_OFFSET_Y;
+		PROJP new = new_item(sl_pool);
+		new->posX = ship->posX + SHOT_OFFSET_X;
+		new->posY = ship->posY + SHOT_OFFSET_Y;
 		//give_vel(sl_pool->pool[sl_pool->liveIndex], ship->vel);
-		give_vel(new, zero_vec);
-		new->vel->x += 15;
+		new->velX = 15;
+		new->velY = 0;
 		if (ship_cooldown == 0) ship_cooldown = SHOT_COOLDOWN;
 	}
 	
 	//Update the temporary debris positions.
-	update_pool_positions(ast_pool, &offscreen);
+	update_pool(ast_pool, &proj_update);
 	
 	for (i = 0; i < 10; i++) {
 		//Creation and swapping of temporary debris.
 		if (!enemy_cooldown && ast_pool->liveIndex < ast_pool->poolsize) {
-			VECTOR random_vert_pos = {SCREEN_W + MARGIN, (rand() % SCREEN_H)};
-			VECTOR random_vel = {(rand() % 3) - 4, (rand() % 5) - 2};
-			PROJP new = new_proj(ast_pool);
-
-			give_pos(new, &random_vert_pos);
-			give_vel(new, &random_vel);
+			PROJP new = new_item(ast_pool);
+			new->posX = SCREEN_W + MARGIN;
+			new->posY = (rand() % SCREEN_H);
+			new->velX = (rand() % 3) - 4;
+			new->velY = (rand() % 5) - 2;
 			if (enemy_cooldown == 0) enemy_cooldown = ENEMY_COOLDOWN;
 			//printf("%i\n", ast_pool->liveIndex);
 		}

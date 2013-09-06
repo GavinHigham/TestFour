@@ -13,48 +13,6 @@ NODEP init_node()
 	return np;
 }
 
-//This one swaps two pointers in an array.
-void swap_array_node(NODEP pool[], int a, int b)
-{
-	NODEP temp = pool[a];
-	pool[a] = pool[b];
-	pool[b] = temp;
-}
-
-//Kills a node and returns it to the pool.
-void kill_node(NPP np, int index) {
-	swap_array_node(np->pool, index, np->liveIndex - 1);
-	np->liveIndex--;
-}
-
-void init_node_pool(NODEP pool[], int count) {
-	int i;
-	for (i = 0; i < count; i++) {
-		pool[i] = init_node();
-	}
-}
-
-NPP init_smartnodepool(int count)
-{
-	NPP np = malloc(sizeof(SMARTPOOL));
-	np->pool = malloc(sizeof(NODEP)*count);
-	init_node_pool(np->pool, count);
-	np->liveIndex = 0;
-	np->poolsize = count;
-	return np;
-}
-
-void free_nodepool(NODEP pool[], int count)
-{
-	int i;
-	for (i = 0; i < count; i++) free(pool[i]);
-}
-
-void free_smartnodepool(NPP np) {
-	free_nodepool(np->pool, np->poolsize);
-	free(np);
-}
-
 //========================================
 
 void ship_aster_coll(PROJP ship, PROJP asteroid)
@@ -63,12 +21,12 @@ void ship_aster_coll(PROJP ship, PROJP asteroid)
 	//printf("%llx & %llx\n", (llui)ship, (llui)asteroid);
 	asteroid->dead = 1;
 	ship->health--;
-	PROJP blastEffect = new_proj(blast_pool);
+	PROJP blastEffect = new_item(blast_pool);
 	blastEffect->health = 34;
-	blastEffect->pos->x = asteroid->pos->x - 13.5;
-	blastEffect->pos->y = asteroid->pos->y - 13.5;
-	blastEffect->vel->x = asteroid->vel->x * 0.6;
-	blastEffect->vel->y = asteroid->vel->y * 0.6;
+	blastEffect->posX = asteroid->posX - 13.5;
+	blastEffect->posY = asteroid->posY - 13.5;
+	blastEffect->velX = asteroid->velX * 0.6;
+	blastEffect->velY = asteroid->velY * 0.6;
 }
 void bolt_aster_coll(PROJP bolt, PROJP asteroid)
 {
@@ -76,12 +34,12 @@ void bolt_aster_coll(PROJP bolt, PROJP asteroid)
 	//printf("%llx & %llx\n", (llui)bolt, (llui)asteroid);
 	bolt->dead = 1;
 	asteroid->dead = 1;
-	PROJP blastEffect = new_proj(blast_pool);
+	PROJP blastEffect = new_item(blast_pool);
 	blastEffect->health = 34;
-	blastEffect->pos->x = asteroid->pos->x - 13.5;
-	blastEffect->pos->y = asteroid->pos->y - 13.5;
-	blastEffect->vel->x = asteroid->vel->x * 0.6;
-	blastEffect->vel->y = asteroid->vel->y * 0.6;
+	blastEffect->posX = asteroid->posX - 13.5;
+	blastEffect->posY = asteroid->posY - 13.5;
+	blastEffect->velX = asteroid->velX * 0.6;
+	blastEffect->velY = asteroid->velY * 0.6;
 }
 void bolt_enemy_coll(PROJP bolt, PROJP enemy)
 {
@@ -195,14 +153,14 @@ void point_checkin(PROJP pp, int pointX, int pointY)
 void check_in_proj(PROJP pp)
 {
 	//printf(".");
-	double cornerX = pp->pos->x;
-	double cornerY = pp->pos->y;
+	double cornerX = pp->posX;
+	double cornerY = pp->posY;
 	point_checkin(pp, (int)cornerX, (int)cornerY); //Check in the top-left corner.
-	cornerX += pp->size->x;
+	cornerX += pp->sizeX;
 	point_checkin(pp, (int)cornerX, (int)cornerY); //Top right...
-	cornerY += pp->size->y;
+	cornerY += pp->sizeY;
 	point_checkin(pp, (int)cornerX, (int)cornerY); //Bottom right...
-	cornerX -= pp->size->x;
+	cornerX -= pp->sizeX;
 	point_checkin(pp, (int)cornerX, (int)cornerY); //Bottom left.
 }
 
@@ -222,10 +180,10 @@ void check_in_smartpool(SPP sp)
 int box_colliding(PROJP proj1, PROJP proj2)
 {
 	//printf("Checking box collision.\n");
-	return ((proj2->pos->x > proj1->pos->x && proj2->pos->x < proj1->pos->x + proj1->size->x) ||
-	        (proj2->pos->x < proj1->pos->x && proj1->pos->x < proj2->pos->x + proj2->size->x)) &&
-	       ((proj2->pos->y > proj1->pos->y && proj2->pos->y < proj1->pos->y + proj1->size->y) ||
-	        (proj2->pos->y < proj1->pos->y && proj1->pos->y < proj2->pos->y + proj2->size->y));
+	return ((proj2->posX > proj1->posX && proj2->posX < proj1->posX + proj1->sizeX) ||
+	        (proj2->posX < proj1->posX && proj1->posX < proj2->posX + proj2->sizeX)) &&
+	       ((proj2->posY > proj1->posY && proj2->posY < proj1->posY + proj1->sizeY) ||
+	        (proj2->posY < proj1->posY && proj1->posY < proj2->posY + proj2->sizeY));
 }
 
 void find_collbox_collisions(COLLBOXP cbp)
@@ -244,7 +202,7 @@ void find_collbox_collisions(COLLBOXP cbp)
 			//printf("temp2 = %llx, temp2->next = %llx", (llui)temp2, (llui)temp2->next);
 		}
 		//printf("Exiting ship collision test. Cleaning up.\n");
-		kill_node(node_pool, cbp->ship->index);
+		kill_item(node_pool, cbp->ship->index);
 		cbp->ship = cbp->ship->next;
 		//assert(cbp->ship->next != cbp->ship);
 	}
@@ -258,7 +216,7 @@ void find_collbox_collisions(COLLBOXP cbp)
 				handleCollision(temp2->data, temp1->data);
 			temp2 = temp2->next;
 		}
-		kill_node(node_pool, temp1->index);
+		kill_item(node_pool, temp1->index);
 		cbp->enemies = cbp->enemies->next;
 		//temp1->next = NULL;
 		temp1 = cbp->enemies;
@@ -275,7 +233,7 @@ void find_collbox_collisions(COLLBOXP cbp)
 				handleCollision(temp2->data, temp1->data);
 			temp2 = temp2->next;
 		}
-		kill_node(node_pool, temp1->index);
+		kill_item(node_pool, temp1->index);
 		cbp->asteroids = cbp->asteroids->next;
 		//temp1->next = NULL;
 		temp1 = cbp->asteroids;
