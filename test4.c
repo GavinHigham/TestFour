@@ -7,6 +7,7 @@
 #include "allegro5/allegro_image.h"
 //My stuff.
 #include "definitions.h"
+#include "struct_pool.c"
 #include "proj.c"
 #include "collision.c"
 #include "init.c"

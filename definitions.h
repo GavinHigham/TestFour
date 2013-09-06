@@ -30,9 +30,14 @@ typedef struct ivector {
 } IVECT, *IVP;
 
 typedef struct projectile {
-	VP pos;
-	VP vel;
-	VP size;
+	int posX;
+	int posY;
+	int velX;
+	int velY;
+	int sizeX;
+	int sizeY;
+	int offsetX;
+	int offsetY;
 	//void *next; //Used for collision.
 	int animFrame;
 	//Used for temporary information.
@@ -109,7 +114,7 @@ int enemy_cooldown = ENEMY_COOLDOWN;
 SPP sl_pool;
 SPP ast_pool;
 SPP blast_pool;
-NPP node_pool;
+SPP node_pool;
 
 enum {KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT, KEY_SPACE};
 bool key[5] = { false, false, false, false };

@@ -48,7 +48,7 @@ void logic_tick()
 
 	//Creation and swapping of laser projectiles.
 	if (key[KEY_SPACE] && !ship_cooldown && sl_pool->liveIndex < sl_pool->poolsize) {
-		PROJP new = new_item(sl_pool);
+		PROJP new = new_pool_item(sl_pool);
 		new->posX = ship->posX + SHOT_OFFSET_X;
 		new->posY = ship->posY + SHOT_OFFSET_Y;
 		//give_vel(sl_pool->pool[sl_pool->liveIndex], ship->vel);
@@ -63,7 +63,7 @@ void logic_tick()
 	for (i = 0; i < 10; i++) {
 		//Creation and swapping of temporary debris.
 		if (!enemy_cooldown && ast_pool->liveIndex < ast_pool->poolsize) {
-			PROJP new = new_item(ast_pool);
+			PROJP new = new_pool_item(ast_pool);
 			new->posX = SCREEN_W + MARGIN;
 			new->posY = (rand() % SCREEN_H);
 			new->velX = (rand() % 3) - 4;
@@ -73,7 +73,7 @@ void logic_tick()
 		}
 	}
 
-	update_pool_positions(blast_pool, &no_health);
+	update_pool(blast_pool, &proj_update);
 	for (i = 0; i < blast_pool->liveIndex; i++) {
 		if (blast_pool->pool[i]->health > 0) blast_pool->pool[i]->health--;
 	}

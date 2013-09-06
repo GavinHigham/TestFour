@@ -51,7 +51,7 @@ int init_stuff()
 	ship->sizeX = 100;
 	ship->sizeY = 50;
 	//Setup the ship's laser pool.
-	sl_pool = init_smartprojpool(PROJ_POOL_SIZE);
+	sl_pool = init_smartItemPool(PROJ_POOL_SIZE, (void *(*)())&init_proj);
 	for (i = 0; i < sl_pool->poolsize; i++) {
 		sl_pool->pool[i]->kind = BOLT;
 		sl_pool->pool[i]->sizeX = 50;
@@ -59,14 +59,14 @@ int init_stuff()
 	}
 
 	//Setup some enemy shots for test purposes.
-	ast_pool = init_smartprojpool(ENEMY_POOL_SIZE);
+	ast_pool = init_smartItemPool(ENEMY_POOL_SIZE, (void *(*)())&init_proj);
 	for (i = 0; i < ast_pool->poolsize; i++) {
 		ast_pool->pool[i]->kind = ASTEROID;
 		ast_pool->pool[i]->sizeX = 25;
 		ast_pool->pool[i]->sizeY = 25;
 	}
 
-	blast_pool = init_smartprojpool(PROJ_POOL_SIZE);
+	blast_pool = init_smartItemPool(PROJ_POOL_SIZE, (void *(*)())&init_proj);
 	for (i = 0; i < blast_pool->poolsize; i++) {
 		blast_pool->pool[i]->kind = BLAST;
 		blast_pool->pool[i]->health = 36;
@@ -75,7 +75,7 @@ int init_stuff()
 
 
 	//The +1 is for the ship projectile, the *4 is for the 4 corners of each projectile.
-	node_pool = init_smartnodepool((ENEMY_POOL_SIZE + PROJ_POOL_SIZE + 1) * 4);
+	node_pool = init_smartItemPool((ENEMY_POOL_SIZE + PROJ_POOL_SIZE + 1) * 4, (void *(*)())&init_node);
 
 	//Return 0 if everything went okay.
 	return 0;

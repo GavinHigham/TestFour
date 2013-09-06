@@ -21,7 +21,8 @@ void ship_aster_coll(PROJP ship, PROJP asteroid)
 	//printf("%llx & %llx\n", (llui)ship, (llui)asteroid);
 	asteroid->dead = 1;
 	ship->health--;
-	PROJP blastEffect = new_item(blast_pool);
+	PROJP blastEffect = new_pool_item(blast_pool);
+	blastEffect->dead = 0;
 	blastEffect->health = 34;
 	blastEffect->posX = asteroid->posX - 13.5;
 	blastEffect->posY = asteroid->posY - 13.5;
@@ -34,7 +35,8 @@ void bolt_aster_coll(PROJP bolt, PROJP asteroid)
 	//printf("%llx & %llx\n", (llui)bolt, (llui)asteroid);
 	bolt->dead = 1;
 	asteroid->dead = 1;
-	PROJP blastEffect = new_item(blast_pool);
+	PROJP blastEffect = new_pool_item(blast_pool);
+	blastEffect->dead = 0;
 	blastEffect->health = 34;
 	blastEffect->posX = asteroid->posX - 13.5;
 	blastEffect->posY = asteroid->posY - 13.5;
@@ -103,43 +105,40 @@ void point_checkin(PROJP pp, int pointX, int pointY)
 		switch(pp->kind) {
 			case SHIP:
 				if (!cbp->ship && node_pool->liveIndex < node_pool->poolsize) {
-					NODEP new = node_pool->pool[node_pool->liveIndex];
+					NODEP new = new_pool_item(node_pool);
+					new->index = node_pool->liveIndex - 1;
 					new->data = pp;
 					new->next = NULL;
-					new->index = node_pool->liveIndex;
 					node_pool->liveIndex++;
 					cbp->ship = new;
 				}
 				break;
 			case BOLT:
 				if ((!cbp->bolts || pp != cbp->bolts->data) && node_pool->liveIndex < node_pool->poolsize) {
-					NODEP new = node_pool->pool[node_pool->liveIndex];
+					NODEP new = new_pool_item(node_pool);
+					new->index = node_pool->liveIndex - 1;
 					new->data = pp;
 					new->next = cbp->bolts;
-					new->index = node_pool->liveIndex;
-					node_pool->liveIndex++;
 					cbp->bolts = new;
 				}
 				break;
 			case ASTEROID:
 				//printf("Checking in an asteroid.\n");
 				if ((!cbp->asteroids || pp != cbp->asteroids->data) && node_pool->liveIndex < node_pool->poolsize) {
-					NODEP new = node_pool->pool[node_pool->liveIndex];
+					NODEP new = new_pool_item(node_pool);
+					new->index = node_pool->liveIndex - 1;
 					new->data = pp;
 					new->next = cbp->asteroids;
-					new->index = node_pool->liveIndex;
-					node_pool->liveIndex++;
 					cbp->asteroids = new;
 				}
 				//printf("Checked in an asteroid.\n");
 				break;
 			case ENEMY:
 				if ((!cbp->enemies || pp != cbp->enemies->data) && node_pool->liveIndex < node_pool->poolsize) {
-					NODEP new = node_pool->pool[node_pool->liveIndex];
+					NODEP new = new_pool_item(node_pool);
+					new->index = node_pool->liveIndex - 1;
 					new->data = pp;
 					new->next = cbp->enemies;
-					new->index = node_pool->liveIndex;
-					node_pool->liveIndex++;
 					cbp->enemies = new;
 				}
 				break;

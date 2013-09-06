@@ -45,7 +45,7 @@ int offscreen(PROJP pp)
 void proj_update(SPP sp, int i)
 {
 	if (sp->pool[i]->dead || offscreen(sp->pool[i])) kill_item(sp, i);
-	tmp = sp->pool[i];
+	PROJP tmp = sp->pool[i];
 	update_proj_position(tmp);
 
 	tmp->animFrame++;
