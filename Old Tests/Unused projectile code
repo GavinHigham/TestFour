@@ -1,0 +1,52 @@
+//Testing a more optimised thing than the proj pool
+float en_xvel[ENEMY_POOL_SIZE];
+float en_yvel[ENEMY_POOL_SIZE];
+float en_xpos[ENEMY_POOL_SIZE];
+float en_ypos[ENEMY_POOL_SIZE];
+int en_frame[ENEMY_POOL_SIZE];
+int en_liveindex = 0;
+for (i = 0; i < ENEMY_POOL_SIZE; i++) en_frame[i] = rand()%60;
+
+
+//Every logic tick:
+//This is an attempt at more efficient asteroids.
+for (i = 0; i < en_liveindex; i++) {
+	en_xpos[i] += en_xvel[i];
+	en_ypos[i] += en_yvel[i];
+	en_frame[i]++;
+	en_frame[i]%=60;
+
+	if (en_xpos[i] > SCREEN_W + MARGIN || en_xpos[i] < 0 - MARGIN || en_ypos[i] > SCREEN_H + MARGIN || en_ypos[i] < 0 - MARGIN) {
+		en_liveindex--;
+		en_xpos[i] = en_xpos[en_liveindex];
+		en_ypos[i] = en_ypos[en_liveindex];
+		en_xvel[i] = en_xvel[en_liveindex];
+		en_yvel[i] = en_yvel[en_liveindex];
+		en_frame[i] = en_frame[en_liveindex];
+	}
+}
+
+for (i = 0; i < 10; i++) {
+	//Creation and swapping of temporary debris.
+	if (!enemy_cooldown && en_liveindex < ENEMY_POOL_SIZE) {
+		en_xpos[en_liveindex] = SCREEN_W;
+		en_ypos[en_liveindex] = rand()%SCREEN_H;
+		
+		en_xvel[en_liveindex] = -(rand()%3) - 4;
+		en_yvel[en_liveindex] = rand()%5 - 2;
+
+		en_liveindex++;
+
+		if (enemy_cooldown == 0) enemy_cooldown = ENEMY_COOLDOWN;
+	}
+}
+
+/*
+
+for (i = 0; i < en_liveindex; i++) {
+	//printf("Attempting to draw asteroid %4i\n", i);
+	al_draw_bitmap(asteroid[en_frame[i]], en_xpos[i], en_ypos[i], 0);
+	//printf("Successfully drew asteroid  %4i\n", i);
+}
+*/
+
